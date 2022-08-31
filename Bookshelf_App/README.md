@@ -54,3 +54,5 @@ curl -X POST -H "Content-Type: application/json" -d '{"title":"Neverwhere", "aut
 
 ##links for confirmations
 https://github.com/udacity/cd0037-API-Development-and-Documentation-exercises/tree/master/1_Requests_Review
+
+https://github.com/udacity/cd0037-API-Development-and-Documentation-exercises/tree/master/2_Errors_Review
