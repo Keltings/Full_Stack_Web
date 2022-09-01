@@ -164,20 +164,33 @@ def create_app(test_config=None):
         new_title = body.get('title', None)
         new_author = body.get('Author', None)
         new_rating = body.get('rating', None)
+        search = body.get('search', None)
 
         try:
-            book = Book(title=new_title, author=new_author,rating=new_rating)
-            book.insert()
+            #--------------An addition to when searching for a book--------------
+            if search:
+                selection = Book.query.order_by(Book.id).filter(Book.title.ilike('%{}%'.format(search)))
+                current_books = paginate_books(request, selection)
 
-            selection = Book.query.order_by(Book.id).all()
-            current_books = paginate_books(request, selection)
+                return jsonify({
+                    'success': True,
+                    'books': current_books,
+                    'total_books': len(selection.all())
+                })
+            #---------------------------------------------------------    
+            else:
+                book = Book(title=new_title, author=new_author,rating=new_rating)
+                book.insert()
 
-            return jsonify({
-                'success': True,
-                'created': book.id,
-                'books': current_books,
-                'total_books': len(Book.query.all())
-            })
+                selection = Book.query.order_by(Book.id).all()
+                current_books = paginate_books(request, selection)
+
+                return jsonify({
+                    'success': True,
+                    'created': book.id,
+                    'books': current_books,
+                    'total_books': len(Book.query.all())
+                })
 
         except:
             abort(422) 
@@ -214,7 +227,7 @@ def create_app(test_config=None):
     #----------------------------------------------------------------------------------------------------------
 
     @app.errorhandler(422)
-    def not_found(error):
+    def unprocessable(error):
         return jsonify({
             'success': False,
             'error': 422,
@@ -227,7 +240,7 @@ def create_app(test_config=None):
     #----------------------------------------------------------------------------------------------------------
 
     @app.errorhandler(400)
-    def not_found(error):
+    def bad_request(error):
         return jsonify({
             'success': False,
             'error': 400,
@@ -241,7 +254,7 @@ def create_app(test_config=None):
     #----------------------------------------------------------------------------------------------------------
 
     @app.errorhandler(405)
-    def not_found(error):
+    def method_not_allowed(error):
         return jsonify({
             'success': False,
             'error': 405,
